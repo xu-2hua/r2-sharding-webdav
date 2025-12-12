@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>分片管理控制台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>body { font-family: sans-serif; }</style>
+</head>
+<body class="bg-gray-100 h-screen flex items-center justify-center">
+    <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-2xl">
+        <h2 class="text-2xl font-bold mb-6 text-gray-800">R2 分片配置</h2>
+        
+        <div id="authBox" class="text-center">
+            <input type="password" id="pass" placeholder="输入 ADMIN_PASS" class="border p-3 rounded w-full mb-4">
+            <button onclick="login()" class="bg-blue-600 text-white px-6 py-3 rounded w-full font-bold">登录</button>
+        </div>
+
+        <div id="configBox" class="hidden">
+            <p class="text-sm text-gray-500 mb-2">配置 JSON (数组格式):</p>
+            <textarea id="jsonEditor" class="w-full h-64 p-4 border rounded font-mono text-sm bg-gray-50 mb-4"></textarea>
+            <div class="flex justify-between">
+                <button onclick="loadConfig()" class="text-blue-600">重置</button>
+                <button onclick="saveConfig()" class="bg-green-600 text-white px-6 py-2 rounded font-bold">保存配置</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let token = '';
+        async function login() {
+            token = document.getElementById('pass').value;
+            const res = await fetch('/api/admin/config', { headers: { 'X-Admin-Pass': token } });
+            if (res.ok) {
+                document.getElementById('authBox').classList.add('hidden');
+                document.getElementById('configBox').classList.remove('hidden');
+                const data = await res.json();
+                document.getElementById('jsonEditor').value = JSON.stringify(data, null, 4);
+            } else {
+                alert('密码错误');
+            }
+        }
+        async function saveConfig() {
+            try {
+                const body = JSON.parse(document.getElementById('jsonEditor').value);
+                const res = await fetch('/api/admin/config', {
+                    method: 'POST',
+                    headers: { 'X-Admin-Pass': token, 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+                if (res.ok) alert('保存成功！');
+            } catch (e) { alert('JSON 格式错误'); }
+        }
+    </script>
+</body>
+</html>
