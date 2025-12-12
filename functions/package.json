@@ -1,1 +1,8 @@
-
+{
+  "name": "r2-webdav-sharding",
+  "version": "1.0.0",
+  "description": "Distributed R2 WebDAV Gateway",
+  "dependencies": {
+    "aws4fetch": "^1.0.17"
+  }
+}
